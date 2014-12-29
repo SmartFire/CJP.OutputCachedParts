@@ -17,7 +17,6 @@ namespace CJP.OutputCachedParts.OutputCachedParts.DriverResults
         private readonly Func<DriverResult> _driverResultFactory;
         private readonly ICacheService _cacheService;
         private readonly IOutputCachedPartsContext _outputCachedPartsContext;
-        private readonly string _cacheKey;
         private readonly CachedPartMetadata _cachedPartMetadata;
 
         public OutputCachedContentShapeResult(string shapeType, Func<DriverResult> driverResultFactory, ICacheService cacheService, IOutputCachedPartsContext outputCachedPartsContext, ContentPart part, string cacheKey, TimeSpan cacheDuration)
@@ -27,7 +26,6 @@ namespace CJP.OutputCachedParts.OutputCachedParts.DriverResults
             _driverResultFactory = driverResultFactory;
             _cacheService = cacheService;
             _outputCachedPartsContext = outputCachedPartsContext;
-            _cacheKey = cacheKey;
         }
 
         public OutputCachedContentShapeResult(string shapeType, Func<DriverResult> driverResultFactory, ICacheService cacheService, IOutputCachedPartsContext outputCachedPartsContext, ContentPart part, string cacheKey)
@@ -37,7 +35,6 @@ namespace CJP.OutputCachedParts.OutputCachedParts.DriverResults
             _driverResultFactory = driverResultFactory;
             _cacheService = cacheService;
             _outputCachedPartsContext = outputCachedPartsContext;
-            _cacheKey = cacheKey;
         }
 
         public OutputCachedContentShapeResult(string shapeType, Func<DriverResult> driverResultFactory, ICacheService cacheService, IOutputCachedPartsContext outputCachedPartsContext, ContentPart part)
@@ -91,7 +88,7 @@ namespace CJP.OutputCachedParts.OutputCachedParts.DriverResults
                 return;
             }
 
-            _outputCachedPartsContext.PutCachedPartMetadata(ContentPart, _cacheKey);
+            _outputCachedPartsContext.PutCachedPartMetadata(ContentPart, _cachedPartMetadata);
             _driverResultFactory().Apply(context);
         }
 
