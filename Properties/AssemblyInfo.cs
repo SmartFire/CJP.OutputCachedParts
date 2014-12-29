@@ -6,7 +6,7 @@ using System.Security;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CJP.OutputCachedParts")]
+[assembly: AssemblyTitle("Bede.GRMS.Orchard.Performance")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyProduct("Orchard")]
@@ -20,7 +20,7 @@ using System.Security;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("fee94b23-78dc-46f3-93f1-e67cf4c5d22a")]
+[assembly: Guid("d2d839d3-1297-4133-bf09-310db0f4c623")]
 
 // Version information for an assembly consists of the following four values:
 //
