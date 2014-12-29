@@ -19,17 +19,17 @@ namespace CJP.OutputCachedParts.Services
 
         public OutputCachedContentShapeResult BuildResult(ContentPart part, string shapeType, Func<DriverResult> driverResultFactory)
         {
-            return new OutputCachedContentShapeResult("Parts_MenuWidget", driverResultFactory, _cacheService, _outputCachedPartsContext, part);
+            return new OutputCachedContentShapeResult(shapeType, driverResultFactory, _cacheService, _outputCachedPartsContext, part);
         }
 
         public OutputCachedContentShapeResult BuildResult(ContentPart part, string shapeType, Func<DriverResult> driverResultFactory, string cacheKey)
         {
-            return new OutputCachedContentShapeResult("Parts_MenuWidget", driverResultFactory, _cacheService, _outputCachedPartsContext, part, cacheKey);
+            return new OutputCachedContentShapeResult(shapeType, driverResultFactory, _cacheService, _outputCachedPartsContext, part, cacheKey);
         }
 
         public OutputCachedContentShapeResult BuildResult(ContentPart part, string shapeType, Func<DriverResult> driverResultFactory, string cacheKey, TimeSpan cacheDuration)
         {
-            return new OutputCachedContentShapeResult("Parts_MenuWidget", driverResultFactory, _cacheService, _outputCachedPartsContext, part, cacheKey, cacheDuration);
+            return new OutputCachedContentShapeResult(shapeType, driverResultFactory, _cacheService, _outputCachedPartsContext, part, cacheKey, cacheDuration);
         }
     }
 }
