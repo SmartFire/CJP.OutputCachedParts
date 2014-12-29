@@ -107,7 +107,12 @@
     <Compile Include="OutputCachedParts\Services\IOutputCachedPartsContext.cs" />
     <Compile Include="OutputCachedParts\Services\OutputCachedPartsContext.cs" />
     <Compile Include="OutputCachedParts\Shapes\CachedShapes.cs" />
+    <Compile Include="Providers\CurrentCultureCacheKeyCompositeProvider.cs" />
+    <Compile Include="Providers\CurrentThemeCacheKeyCompositeProvider.cs" />
+    <Compile Include="Providers\ICacheKeyCompositeProvider.cs" />
+    <Compile Include="Services\DefaultCacheKeyService.cs" />
     <Compile Include="Services\DefaultOutputCachedDriverResultFactory.cs" />
+    <Compile Include="Services\ICacheKeyService.cs" />
     <Compile Include="Services\IOutputCachedDriverResultFactory.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using CJP.OutputCachedParts.OutputCachedParts.Models;
 using CJP.OutputCachedParts.OutputCachedParts.Services;
+using CJP.OutputCachedParts.Providers;
+using CJP.OutputCachedParts.Services;
 using Orchard.Caching.Services;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.Drivers;
@@ -17,28 +20,29 @@ namespace CJP.OutputCachedParts.OutputCachedParts.DriverResults
         private readonly Func<DriverResult> _driverResultFactory;
         private readonly ICacheService _cacheService;
         private readonly IOutputCachedPartsContext _outputCachedPartsContext;
+        private readonly ICacheKeyService _cacheKeyService;
         private readonly CachedPartMetadata _cachedPartMetadata;
 
-        public OutputCachedContentShapeResult(string shapeType, Func<DriverResult> driverResultFactory, ICacheService cacheService, IOutputCachedPartsContext outputCachedPartsContext, ContentPart part, string cacheKey, TimeSpan cacheDuration)
+        public OutputCachedContentShapeResult(string shapeType, Func<DriverResult> driverResultFactory, ICacheService cacheService, IOutputCachedPartsContext outputCachedPartsContext, ICacheKeyService cacheKeyService, ContentPart part, string cacheKey, TimeSpan cacheDuration)
         {
-            _cachedPartMetadata = new CachedPartMetadata(part, cacheKey, cacheDuration);
+            _cachedPartMetadata = new CachedPartMetadata(cacheKeyService.BuildFullCacheKey(part, cacheKey), cacheDuration);
             _shapeType = shapeType;
             _driverResultFactory = driverResultFactory;
             _cacheService = cacheService;
             _outputCachedPartsContext = outputCachedPartsContext;
         }
 
-        public OutputCachedContentShapeResult(string shapeType, Func<DriverResult> driverResultFactory, ICacheService cacheService, IOutputCachedPartsContext outputCachedPartsContext, ContentPart part, string cacheKey)
+        public OutputCachedContentShapeResult(string shapeType, Func<DriverResult> driverResultFactory, ICacheService cacheService, IOutputCachedPartsContext outputCachedPartsContext, ICacheKeyService cacheKeyService, ContentPart part, string cacheKey)
         {
-            _cachedPartMetadata = new CachedPartMetadata(part, cacheKey);
+            _cachedPartMetadata = new CachedPartMetadata(cacheKeyService.BuildFullCacheKey(part, cacheKey));
             _shapeType = shapeType;
             _driverResultFactory = driverResultFactory;
             _cacheService = cacheService;
             _outputCachedPartsContext = outputCachedPartsContext;
         }
 
-        public OutputCachedContentShapeResult(string shapeType, Func<DriverResult> driverResultFactory, ICacheService cacheService, IOutputCachedPartsContext outputCachedPartsContext, ContentPart part)
-            : this(shapeType, driverResultFactory, cacheService,outputCachedPartsContext, part, shapeType)
+        public OutputCachedContentShapeResult(string shapeType, Func<DriverResult> driverResultFactory, ICacheService cacheService, IOutputCachedPartsContext outputCachedPartsContext, ICacheKeyService cacheKeyService, ContentPart part)
+            : this(shapeType, driverResultFactory, cacheService, outputCachedPartsContext, cacheKeyService, part, shapeType)
         {}
 
         public override void Apply(BuildDisplayContext context)
