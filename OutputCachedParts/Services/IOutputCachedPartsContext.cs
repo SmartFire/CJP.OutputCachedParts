@@ -7,8 +7,7 @@ namespace CJP.OutputCachedParts.OutputCachedParts.Services
 {
     public interface IOutputCachedPartsContext : IDependency
     {
-        void PutCachedPartMetadata(ContentPart part, string cacheKey);
-        void PutCachedPartMetadata(ContentPart part, string cacheKey, TimeSpan cacheDuration);
+        void PutCachedPartMetadata(ContentPart part, CachedPartMetadata metadata);
         CachedPartMetadata GetCachedPartMetadata(ContentPart part);
         OutputCachedPartsModel GetCacheModel(Func<string> htmlFactory);
     }

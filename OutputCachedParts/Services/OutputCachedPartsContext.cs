@@ -25,14 +25,9 @@ namespace CJP.OutputCachedParts.OutputCachedParts.Services
             return string.Format("{0}-{1}", part.TypePartDefinition.PartDefinition.Name, part.Id);
         }
 
-        public void PutCachedPartMetadata(ContentPart part, string cacheKey) 
+        public void PutCachedPartMetadata(ContentPart part, CachedPartMetadata metadata) 
         {
-            CachedPartMetadata.Add(new KeyValuePair<string, CachedPartMetadata>(BuildCachedPartMetadataKey(part), new CachedPartMetadata(part, cacheKey)));
-        }
-
-        public void PutCachedPartMetadata(ContentPart part, string cacheKey, TimeSpan cacheDuration)
-        {
-            CachedPartMetadata.Add(new KeyValuePair<string, CachedPartMetadata>(BuildCachedPartMetadataKey(part), new CachedPartMetadata(part, cacheKey, cacheDuration)));
+            CachedPartMetadata.Add(new KeyValuePair<string, CachedPartMetadata>(BuildCachedPartMetadataKey(part), metadata));
         }
 
         public CachedPartMetadata GetCachedPartMetadata(ContentPart part) 

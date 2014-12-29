@@ -9,5 +9,5 @@ Features:
     CJP.OutputCachedParts:
         Description: Provides the ability to allow you to output cache individual content parts.
         Name: Output Cached Parts
-        Category: Performance
+        Category: Output Cached Drivers
 		Dependencies: Orchard.Caching
