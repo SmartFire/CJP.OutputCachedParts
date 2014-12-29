@@ -20,7 +20,18 @@ namespace CJP.OutputCachedParts.OutputCachedParts.DriverResults
         private readonly string _cacheKey;
         private readonly CachedPartMetadata _cachedPartMetadata;
 
-        public OutputCachedContentShapeResult(string shapeType, Func<DriverResult> driverResultFactory, ICacheService cacheService, IOutputCachedPartsContext outputCachedPartsContext, ContentPart part, string cacheKey) {
+        public OutputCachedContentShapeResult(string shapeType, Func<DriverResult> driverResultFactory, ICacheService cacheService, IOutputCachedPartsContext outputCachedPartsContext, ContentPart part, string cacheKey, TimeSpan cacheDuration)
+        {
+            _cachedPartMetadata = new CachedPartMetadata(part, cacheKey, cacheDuration);
+            _shapeType = shapeType;
+            _driverResultFactory = driverResultFactory;
+            _cacheService = cacheService;
+            _outputCachedPartsContext = outputCachedPartsContext;
+            _cacheKey = cacheKey;
+        }
+
+        public OutputCachedContentShapeResult(string shapeType, Func<DriverResult> driverResultFactory, ICacheService cacheService, IOutputCachedPartsContext outputCachedPartsContext, ContentPart part, string cacheKey)
+        {
             _cachedPartMetadata = new CachedPartMetadata(part, cacheKey);
             _shapeType = shapeType;
             _driverResultFactory = driverResultFactory;

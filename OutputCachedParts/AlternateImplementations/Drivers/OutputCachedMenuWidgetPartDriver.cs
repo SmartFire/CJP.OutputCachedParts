@@ -1,7 +1,5 @@
-﻿using CJP.OutputCachedParts.OutputCachedParts.DriverResults;
-using CJP.OutputCachedParts.OutputCachedParts.Services;
+﻿using CJP.OutputCachedParts.Services;
 using Orchard;
-using Orchard.Caching.Services;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.Drivers;
 using Orchard.Core.Navigation.Drivers;
@@ -17,21 +15,18 @@ namespace CJP.OutputCachedParts.OutputCachedParts.AlternateImplementations.Drive
     public class OutputCachedMenuWidgetPartDriver : MenuWidgetPartDriver
     {
         private readonly IWorkContextAccessor _workContextAccessor;
-        private readonly ICacheService _cacheService;
-        private readonly IOutputCachedPartsContext _outputCachedPartsContext;
+        private readonly IOutputCachedDriverResultFactory _driverResultFactory;
 
         public OutputCachedMenuWidgetPartDriver(
             IContentManager contentManager,
             INavigationManager navigationManager,
             IWorkContextAccessor workContextAccessor,
             IMenuService menuService,
-            ICacheService cacheService,
-            IOutputCachedPartsContext outputCachedPartsContext)
+            IOutputCachedDriverResultFactory driverResultFactory)
             : base(contentManager, navigationManager, workContextAccessor, menuService)
         {
             _workContextAccessor = workContextAccessor;
-            _cacheService = cacheService;
-            _outputCachedPartsContext = outputCachedPartsContext;
+            _driverResultFactory = driverResultFactory;
             T = NullLocalizer.Instance;
         }
 
@@ -45,7 +40,7 @@ namespace CJP.OutputCachedParts.OutputCachedParts.AlternateImplementations.Drive
                 cacheKey = string.Format("{0}.{1}.{2}", cacheKey, request.Path, request.ApplicationPath);
             }
 
-            return new OutputCachedContentShapeResult("Parts_MenuWidget", () => base.Display(part, displayType, (object)shapeHelper), _cacheService, _outputCachedPartsContext, part, cacheKey);
+            return _driverResultFactory.BuildResult(part, "Parts_MenuWidget", () => base.Display(part, displayType, (object)shapeHelper), cacheKey);
         }
     }
 }
