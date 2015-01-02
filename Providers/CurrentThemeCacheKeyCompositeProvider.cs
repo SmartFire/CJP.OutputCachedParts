@@ -9,6 +9,7 @@ namespace CJP.OutputCachedParts.Providers {
         {
             _orchardServices = orchardServices;
         }
+        public string Description { get { return "Differentiates the cache key based on the currently active theme"; } }
 
         public string GetCompositeValue() {
             return _orchardServices.WorkContext.CurrentTheme.Id;

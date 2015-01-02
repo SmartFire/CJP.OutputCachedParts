@@ -1,0 +1,78 @@
+﻿@using Orchard.Utility.Extensions
+@model CJP.OutputCachedParts.Controllers.AdminIndexVM
+
+@{
+    Layout.Title = T("Cached Content Parts Management");
+}
+
+<p>@T("The Cached Content Parts feature allows you to cache the generated HTML of individual parts. This page allows you to see the keys and output that have been cached, as well as giving you the ability to manually invalidate individual cache keys should you need to. ")</p>
+
+<fieldset>
+    <legend>@T("Cached Parts")</legend>
+    <table class="items">
+        <thead>
+            <tr>
+                <th scope="col">@T("Cache Key")</th>
+                <th scope="col">@T("Content")</th>
+                <th scope="col">@T("Cached At (UTC)")</th>
+                <th scope="col">@T("Cached Value")</th>
+            </tr>
+        </thead>
+        @foreach (var summary in Model.OutputCachedPartSummaries)
+        {
+            <tr>
+                <td>
+                    @summary.CacheKey
+                </td>
+                <td>
+                    @summary.ContentId
+                </td>
+                <td>
+                    @if (summary.CachedValue != null) {//todo: display this culture and time zone sensitive
+                        @summary.CachedValue.GenerationDateTime
+                    }
+                </td>
+                <td>
+                    @if (summary.CachedValue == null) {
+                        <span class="hint">@T("Expired")</span>
+                    }
+                    else
+                    {
+                        @summary.CachedValue
+                    }
+                </td>
+            </tr>
+        }
+    </table>
+</fieldset>
+
+<fieldset>
+    <legend>@T("Cache Key Composite Providers")</legend>
+    <p>@T("These providers allow for custom logic to be injected in at the time of cache key creation. This means that you can create unique cache keys based on several different factors.")</p>
+    <p>@T("The providers that are currently active on this site are:")</p>
+    <table class="items">
+        <thead>
+            <tr>
+                <th scope="col">@T("Name")</th>
+                <th scope="col">@T("Description")</th>
+                <th scope="col">@T("Current Value*")</th>
+            </tr>
+        </thead>
+        @foreach (var compositeProvider in Model.CompositeProviders)
+        {
+            <tr>
+                <td>
+                    @compositeProvider.Name.CamelFriendly()
+                </td>
+                <td>
+                    @compositeProvider.Description
+                </td>
+                <td>
+                    @compositeProvider.CurrentValue
+                </td>
+            </tr>
+        }
+    </table>
+    <p class="hint">@T("* note that these values indicate the results of each of the composite providers for the current request. These values may change on a request by request basis and may be radically different for a user on the front end of the site.")</p>
+
+</fieldset>

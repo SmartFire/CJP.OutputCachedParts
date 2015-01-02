@@ -95,6 +95,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Permissions.cs" />
+    <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Migrations.cs" />
+    <Compile Include="Models\CacheKeyRecord.cs" />
     <Compile Include="OutputCachedParts\AlternateImplementations\Drivers\OutputCachedMenuWidgetPartDriver.cs" />
     <Compile Include="OutputCachedParts\AlternateImplementations\EventRaisingResourceManager.cs" />
     <Compile Include="OutputCachedParts\AlternateImplementations\OutputCachedPartsDisplayManager.cs" />
@@ -107,17 +111,19 @@
     <Compile Include="OutputCachedParts\Services\IOutputCachedPartsContext.cs" />
     <Compile Include="OutputCachedParts\Services\OutputCachedPartsContext.cs" />
     <Compile Include="OutputCachedParts\Shapes\CachedShapes.cs" />
+    <Compile Include="Providers\AdminMenu.cs" />
     <Compile Include="Providers\CurrentCultureCacheKeyCompositeProvider.cs" />
     <Compile Include="Providers\CurrentThemeCacheKeyCompositeProvider.cs" />
     <Compile Include="Providers\ICacheKeyCompositeProvider.cs" />
+    <Compile Include="Services\DefaultOutputCachedPartsService.cs" />
     <Compile Include="Services\DefaultCacheKeyService.cs" />
     <Compile Include="Services\DefaultOutputCachedDriverResultFactory.cs" />
     <Compile Include="Services\ICacheKeyService.cs" />
+    <Compile Include="Services\IDefaultOutputCachedPartsService.cs" />
     <Compile Include="Services\IOutputCachedDriverResultFactory.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Controllers\" />
-    <Folder Include="Models\" />
+    <Content Include="Views\Admin\Index.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Web;
 using CJP.OutputCachedParts.OutputCachedParts.Services;
+using CJP.OutputCachedParts.Services;
 using Orchard;
 using Orchard.Caching.Services;
 using Orchard.ContentManagement;
@@ -14,13 +15,11 @@ namespace CJP.OutputCachedParts.OutputCachedParts.AlternateImplementations
     [OrchardSuppressDependency("Orchard.DisplayManagement.Implementation.DefaultDisplayManager")]
     public class OutputCachedPartsDisplayManager : DefaultDisplayManager, IDisplayManager
     {
-        private readonly ICacheService _cacheService;
-        private readonly IOutputCachedPartsContext _outputCachedPartsContext;
+        private readonly IDefaultOutputCachedPartsService _outputCachedPartsService;
 
-        public OutputCachedPartsDisplayManager(IWorkContextAccessor workContextAccessor, IEnumerable<IShapeDisplayEvents> shapeDisplayEvents, Lazy<IShapeTableLocator> shapeTableLocator, ICacheService cacheService, IOutputCachedPartsContext outputCachedPartsContext) 
+        public OutputCachedPartsDisplayManager(IWorkContextAccessor workContextAccessor, IEnumerable<IShapeDisplayEvents> shapeDisplayEvents, Lazy<IShapeTableLocator> shapeTableLocator, IDefaultOutputCachedPartsService outputCachedPartsService) 
             : base(workContextAccessor, shapeDisplayEvents, shapeTableLocator) {
-            _cacheService = cacheService;
-            _outputCachedPartsContext = outputCachedPartsContext;
+            _outputCachedPartsService = outputCachedPartsService;
         }
 
         public new IHtmlString Execute(DisplayContext context)
@@ -43,26 +42,7 @@ namespace CJP.OutputCachedParts.OutputCachedParts.AlternateImplementations
                 return base.Execute(context);
             }
 
-            var cachedPartMetadata = _outputCachedPartsContext.GetCachedPartMetadata(part);
-
-            if (cachedPartMetadata == null)
-            {
-                return base.Execute(context);
-            }
-
-
-            var cachedModel = _outputCachedPartsContext.GetCacheModel(() => base.Execute(context).ToHtmlString());
-
-            if (cachedPartMetadata.Timespan.HasValue)
-            {
-                _cacheService.Put(cachedPartMetadata.CacheKey, cachedModel, cachedPartMetadata.Timespan.Value);
-            }
-            else
-            {
-                _cacheService.Put(cachedPartMetadata.CacheKey, cachedModel);
-            }
-
-            return new HtmlString(cachedModel.Html);
+            return _outputCachedPartsService.BuildAndCacheOutput(() => base.Execute(context), part);
         }
     }
 }
