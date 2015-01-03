@@ -11,3 +11,8 @@ Features:
         Name: Output Cached Parts
         Category: Output Cached Drivers
 		Dependencies: Orchard.Caching
+    CJP.OutputCachedParts.MenuWidgetPart:
+        Description: Provides an output cached driver for the HTML widget part.
+        Name: Output Cached Menu Widget
+        Category: Output Cached Drivers
+		Dependencies: CJP.OutputCachedParts
