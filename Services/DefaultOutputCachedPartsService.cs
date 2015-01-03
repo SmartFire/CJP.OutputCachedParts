@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Web;
 using CJP.OutputCachedParts.Models;
 using CJP.OutputCachedParts.OutputCachedParts.Services;
@@ -30,11 +31,15 @@ namespace CJP.OutputCachedParts.Services
         }
 
         public void InvalidateCachedOutput(params int[] contentIds) {
-            throw new NotImplementedException();
+            var cackeKeys = _cacheKeyRepository.Fetch(r => contentIds.Contains(r.ContentId)).Select(r=>r.CacheKey);
+
+            foreach (var cackeKey in cackeKeys) {
+                InvalidateCachedOutput(cackeKey);
+            }
         }
 
         public void InvalidateCachedOutput(ContentPart contentPart) {
-            throw new NotImplementedException();
+            InvalidateCachedOutput(contentPart.Id);
         }
 
         public IHtmlString BuildAndCacheOutput(Func<IHtmlString> htmlStringFactory, ContentPart part)

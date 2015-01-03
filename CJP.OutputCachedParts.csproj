@@ -95,6 +95,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Handlers\OutputCachedPartInvalidationHandler.cs" />
     <Compile Include="Permissions.cs" />
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Migrations.cs" />
