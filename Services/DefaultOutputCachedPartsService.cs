@@ -28,7 +28,7 @@ namespace CJP.OutputCachedParts.Services
             throw new NotImplementedException();
         }
 
-        public void InvalidateCachedOutput(int contentId) {
+        public void InvalidateCachedOutput(params int[] contentIds) {
             throw new NotImplementedException();
         }
 

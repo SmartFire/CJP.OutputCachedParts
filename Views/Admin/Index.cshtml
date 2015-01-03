@@ -13,9 +13,9 @@
         <thead>
             <tr>
                 <th scope="col">@T("Cache Key")</th>
-                <th scope="col">@T("Content")</th>
+                <th scope="col">@T("Content Type")</th>
                 <th scope="col">@T("Cached At (UTC)")</th>
-                <th scope="col">@T("Cached Value")</th>
+                <th scope="col">@T("Actions")</th>
             </tr>
         </thead>
         @foreach (var summary in Model.OutputCachedPartSummaries)
@@ -25,7 +25,7 @@
                     @summary.CacheKey
                 </td>
                 <td>
-                    @summary.ContentId
+                    @summary.Content.ContentType.CamelFriendly()
                 </td>
                 <td>
                     @if (summary.CachedValue != null) {//todo: display this culture and time zone sensitive
@@ -38,7 +38,9 @@
                     }
                     else
                     {
-                        @summary.CachedValue
+                        @Html.ActionLink(T("View Cached Value").Text, "View", new{summary.Id}) 
+                        <text>|</text>
+                        @Html.ActionLink(T("Remove From Cache...").Text, "View", new{summary.Id})
                     }
                 </td>
             </tr>

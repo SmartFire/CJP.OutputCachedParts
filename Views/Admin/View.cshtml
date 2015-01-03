@@ -1,0 +1,98 @@
+﻿@model CJP.OutputCachedParts.Controllers.OutputCachedPartSummary
+
+@{
+    Layout.Title = T("View Cached Content Part Output");
+}
+
+<fieldset>
+    <legend>@T("Cached Values For Key '{0}'", Model.CacheKey)</legend>
+    
+    @if (Model.CachedValue == null) {
+        <p>@T("The cache key {0} has now expired. The clean up service will shortly remove this key from your admin panel.", Model.CacheKey)</p>
+    }
+    else {
+
+        <div>
+            <h3>@T("Cached HTML:")</h3>
+            <pre>@Model.CachedValue.Html</pre>
+        </div>
+
+        <div>
+            <h3>@T("Included Resources:")</h3>
+            @if (Model.CachedValue.IncludedResources.Any()) {
+                <table class="items">
+                    <thead>
+                        <tr>
+                            <th scope="col">@T("Resource Type")</th>
+                            <th scope="col">@T("Resource Path")</th>
+                            <th scope="col">@T("Resource Debug Path")</th>
+                            <th scope="col">@T("Relative From Path")</th>
+                        </tr>
+                    </thead>
+                    @foreach (var resource in Model.CachedValue.IncludedResources) {
+                        <tr>
+                            <td>@resource.ResourceType</td>
+                            <td>@resource.ResourcePath</td>
+                            <td>@resource.ResourceDebugPath</td>
+                            <td>@resource.RelativeFromPath</td>
+                        </tr>
+                    }
+                </table>
+            }
+            else {
+                <p class="hint">@T("There are no included resources in the cached output")</p>
+            }
+        </div>
+
+        <div>
+            <h3>@T("Requires Resources:")</h3>
+            @if (Model.CachedValue.RequiredResources.Any()) {
+                <table class="items">
+                    <thead>
+                        <tr>
+                            <th scope="col">@T("Resource Type")</th>
+                            <th scope="col">@T("Resource Name")</th>
+                        </tr>
+                    </thead>
+                    @foreach (var resource in Model.CachedValue.RequiredResources) {
+                        <tr>
+                            <td>@resource.ResourceType</td>
+                            <td>@resource.ResourceName</td>
+                        </tr>
+                    }
+                </table>
+            }
+            else {
+                <p class="hint">@T("There are no required resources in the cached output")</p>
+            }
+        </div>
+
+        <div>
+            <h3>@T("Head Scripts:")</h3>
+            @if (Model.CachedValue.HeadScripts.Any()) {
+                foreach (var script in Model.CachedValue.HeadScripts) {
+                    <pre>@script</pre>
+                }
+            }
+            else {
+                <p class="hint">@T("There are no head scripts in the cached output")</p>
+            }
+        </div>
+
+        <div>
+            <h3>@T("Foot Scripts:")</h3>
+            @if (Model.CachedValue.FootScripts.Any()) {
+                foreach (var script in Model.CachedValue.FootScripts) {
+                    <pre>@script</pre>
+                }
+            }
+            else {
+                <p class="hint">@T("There are no foot scripts in the cached output")</p>
+            }
+        </div>
+    }
+</fieldset>
+
+<div class="actions">
+    @Html.ActionLink(@T("Return to list view").Text, "Index", null, new{@class="button"})
+</div>

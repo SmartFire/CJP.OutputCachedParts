@@ -9,7 +9,7 @@ namespace CJP.OutputCachedParts.Services
     {
         void InvalidateCachedOutput(string cacheKey);
         void InvalidateCachedOutput(params string[] contentTypes);
-        void InvalidateCachedOutput(int contentId);
+        void InvalidateCachedOutput(params int[] contentIds);
         void InvalidateCachedOutput(ContentPart contentPart);
         IHtmlString BuildAndCacheOutput(Func<IHtmlString> htmlStringFactory, ContentPart part);
     }
