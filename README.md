@@ -36,3 +36,7 @@ Once you have installed the module into your solution, you will have to integrat
 
  * Take a look at https://github.com/paynecrl97/CJP.OutputCachedParts/blob/master/OutputCachedParts/AlternateImplementations/Drivers/OutputCachedMenuWidgetPartDriver.cs to see an example of how the menu widget is cached and also provides some custom logic to determine the cache key.
 
+Providing global logic to be applied to all of the generated cache keys
+=======================================================================
+
+You may want to provide your own logic to create unique cache key variations. For example, you may wish to use different cache keys depending on the day of the week. You can do this by implementing `ICacheKeyCompositeProvider`. This simple interface contains a method that returns a string that will be appended to each of the generated cache keys. This module comes with two of these providers by default- one that appends the current theme, and another that appends the current culture. This means that the cached output is differentitated by both culture and theme.
