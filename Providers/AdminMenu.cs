@@ -11,8 +11,11 @@ namespace CJP.OutputCachedParts.Providers
 
         public void GetNavigation(NavigationBuilder builder)
         {
-            builder
-                .Add(T("Performance"), "4", item => item.Action("Index", "Admin", new { area = "CJP.OutputCachedParts" }).Permission(Permissions.ManageCachedKeys));
+            builder.Add(T("Performance"), "4", 
+                item => item.Add(T("Output Cached Parts"), "0", subItem => subItem
+                    .Action("Index", "Admin", new { area = "CJP.OutputCachedParts" })
+                    .Permission(Permissions.ManageCachedKeys)
+                    .LocalNav()));
         }
     }
 }

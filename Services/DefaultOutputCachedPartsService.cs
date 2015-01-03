@@ -8,7 +8,7 @@ using Orchard.Data;
 
 namespace CJP.OutputCachedParts.Services
 {
-    public class DefaultOutputCachedPartsService : IDefaultOutputCachedPartsService
+    public class DefaultOutputCachedPartsService : IOutputCachedPartsService
     {
         private readonly IRepository<CacheKeyRecord> _cacheKeyRepository;
         private readonly ICacheService _cacheService;
@@ -20,8 +20,9 @@ namespace CJP.OutputCachedParts.Services
             _outputCachedPartsContext = outputCachedPartsContext;
         }
 
-        public void InvalidateCachedOutput(string cacheKey) {
-            throw new NotImplementedException();
+        public void InvalidateCachedOutput(string cacheKey)
+        {
+            _cacheService.Remove(cacheKey);
         }
 
         public void InvalidateCachedOutput(params string[] contentTypes) {

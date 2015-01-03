@@ -119,7 +119,7 @@
     <Compile Include="Services\DefaultCacheKeyService.cs" />
     <Compile Include="Services\DefaultOutputCachedDriverResultFactory.cs" />
     <Compile Include="Services\ICacheKeyService.cs" />
-    <Compile Include="Services\IDefaultOutputCachedPartsService.cs" />
+    <Compile Include="Services\IOutputCachedPartsService.cs" />
     <Compile Include="Services\IOutputCachedDriverResultFactory.cs" />
   </ItemGroup>
   <ItemGroup>

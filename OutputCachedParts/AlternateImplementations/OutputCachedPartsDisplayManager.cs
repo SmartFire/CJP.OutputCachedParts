@@ -15,9 +15,9 @@ namespace CJP.OutputCachedParts.OutputCachedParts.AlternateImplementations
     [OrchardSuppressDependency("Orchard.DisplayManagement.Implementation.DefaultDisplayManager")]
     public class OutputCachedPartsDisplayManager : DefaultDisplayManager, IDisplayManager
     {
-        private readonly IDefaultOutputCachedPartsService _outputCachedPartsService;
+        private readonly IOutputCachedPartsService _outputCachedPartsService;
 
-        public OutputCachedPartsDisplayManager(IWorkContextAccessor workContextAccessor, IEnumerable<IShapeDisplayEvents> shapeDisplayEvents, Lazy<IShapeTableLocator> shapeTableLocator, IDefaultOutputCachedPartsService outputCachedPartsService) 
+        public OutputCachedPartsDisplayManager(IWorkContextAccessor workContextAccessor, IEnumerable<IShapeDisplayEvents> shapeDisplayEvents, Lazy<IShapeTableLocator> shapeTableLocator, IOutputCachedPartsService outputCachedPartsService) 
             : base(workContextAccessor, shapeDisplayEvents, shapeTableLocator) {
             _outputCachedPartsService = outputCachedPartsService;
         }

@@ -14,6 +14,7 @@
             <tr>
                 <th scope="col">@T("Cache Key")</th>
                 <th scope="col">@T("Content Type")</th>
+                <th scope="col">@T("Content Part")</th>
                 <th scope="col">@T("Cached At (UTC)")</th>
                 <th scope="col">@T("Actions")</th>
             </tr>
@@ -25,7 +26,10 @@
                     @summary.CacheKey
                 </td>
                 <td>
-                    @summary.Content.ContentType.CamelFriendly()
+                    @*summary.Content.ContentType.CamelFriendly()*@
+                </td>
+                <td>
+                    @*summary.Content.ContentType.CamelFriendly()*@
                 </td>
                 <td>
                     @if (summary.CachedValue != null) {//todo: display this culture and time zone sensitive
@@ -34,13 +38,17 @@
                 </td>
                 <td>
                     @if (summary.CachedValue == null) {
-                        <span class="hint">@T("Expired")</span>
+                        <span class="hint">@T("None available (Cache expired)")</span>
                     }
                     else
                     {
-                        @Html.ActionLink(T("View Cached Value").Text, "View", new{summary.Id}) 
-                        <text>|</text>
-                        @Html.ActionLink(T("Remove From Cache...").Text, "View", new{summary.Id})
+                        using (Html.BeginFormAntiForgeryPost(Url.Action("Invalidate", "Admin", "CJP.OutputCachedParts"), FormMethod.Post ))
+                        {
+                            @Html.ActionLink(T("View Cached Value").Text, "View", new { summary.Id })
+                            <text>|</text>
+                            @Html.Hidden("Id", summary.Id)
+                            <button type="submit" class="link">@T("Remove From Cache")</button>
+                        }
                     }
                 </td>
             </tr>

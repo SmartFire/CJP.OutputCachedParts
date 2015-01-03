@@ -5,7 +5,7 @@ using Orchard.ContentManagement;
 
 namespace CJP.OutputCachedParts.Services 
 {
-    public interface IDefaultOutputCachedPartsService : IDependency
+    public interface IOutputCachedPartsService : IDependency
     {
         void InvalidateCachedOutput(string cacheKey);
         void InvalidateCachedOutput(params string[] contentTypes);
