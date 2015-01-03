@@ -12,6 +12,7 @@ using Orchard.UI.Navigation;
 namespace CJP.OutputCachedParts.OutputCachedParts.AlternateImplementations.Drivers
 {
     [OrchardSuppressDependency("Orchard.Core.Navigation.Drivers.MenuWidgetPartDriver")]
+    [OrchardFeature("CJP.OutputCachedParts.MenuWidgetPart")]
     public class OutputCachedMenuWidgetPartDriver : MenuWidgetPartDriver
     {
         private readonly IWorkContextAccessor _workContextAccessor;
@@ -32,9 +33,8 @@ namespace CJP.OutputCachedParts.OutputCachedParts.AlternateImplementations.Drive
 
         protected override DriverResult Display(MenuWidgetPart part, string displayType, dynamic shapeHelper)
         {
-            var currentCulture = _workContextAccessor.GetContext().CurrentCulture;
             var request = _workContextAccessor.GetContext().HttpContext.Request;
-            var cacheKey = string.Format("MenuWidget.{0}", currentCulture);
+            var cacheKey = "MenuWidget";
             if (request != null)
             {
                 cacheKey = string.Format("{0}.{1}.{2}", cacheKey, request.Path, request.ApplicationPath);
