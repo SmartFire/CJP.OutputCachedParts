@@ -111,29 +111,4 @@ namespace CJP.OutputCachedParts.Controllers
             return RedirectToAction("Index");
         }
     }
-
-    public class AdminIndexVM
-    {
-        public IList<OutputCachedPartSummary> OutputCachedPartSummaries { get; set; }
-        public IList<CacheKeyCompositeProviderSummary> CompositeProviders { get; set; }
-    }
-
-    public class OutputCachedPartSummary
-    {
-        public int Id { get; set; }
-        public string CacheKey { get; set; }
-        public string PartName { get; set; }
-        public string ContentType { get; set; }
-        public string ContentName { get; set; }
-        public int ContentId { get; set; }
-        public ContentItem Content { get; set; }
-        public OutputCachedPartsModel CachedValue { get; set; }
-    }
-
-    public class CacheKeyCompositeProviderSummary
-    {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string CurrentValue { get; set; }
-    }
 }

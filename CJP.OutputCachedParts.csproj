@@ -95,6 +95,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\AdminIndexVM.cs" />
+    <Compile Include="Models\CacheKeyCompositeProviderSummary.cs" />
+    <Compile Include="Models\OutputCachedPartSummary.cs" />
     <Compile Include="Handlers\OutputCachedPartInvalidationHandler.cs" />
     <Compile Include="Permissions.cs" />
     <Compile Include="Controllers\AdminController.cs" />
