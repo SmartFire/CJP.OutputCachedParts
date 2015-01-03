@@ -11,11 +11,13 @@ using Orchard.ContentManagement;
 using Orchard.Data;
 using Orchard.Localization;
 using Orchard.Logging;
+using Orchard.UI.Admin;
 using Orchard.UI.Navigation;
 using Orchard.UI.Notify;
 
 namespace CJP.OutputCachedParts.Controllers 
 {
+    [Admin]
     public class AdminController : Controller 
     {
         private readonly IOrchardServices _orchardServices;
@@ -25,7 +27,12 @@ namespace CJP.OutputCachedParts.Controllers
         private readonly IContentManager _contentManager;
         private readonly IOutputCachedPartsService _outputCachedPartsService;
 
-        public AdminController(IOrchardServices orchardServices, IEnumerable<ICacheKeyCompositeProvider> cacheKeyCompositeProviders, ICacheService cacheService, IRepository<CacheKeyRecord> cacheKeyRecordRepository, IContentManager contentManager, IOutputCachedPartsService outputCachedPartsService)
+        public AdminController(IOrchardServices orchardServices, 
+            IEnumerable<ICacheKeyCompositeProvider> cacheKeyCompositeProviders, 
+            ICacheService cacheService, 
+            IRepository<CacheKeyRecord> cacheKeyRecordRepository, 
+            IContentManager contentManager, 
+            IOutputCachedPartsService outputCachedPartsService)
         {
             _orchardServices = orchardServices;
             _cacheKeyCompositeProviders = cacheKeyCompositeProviders;
@@ -43,12 +50,22 @@ namespace CJP.OutputCachedParts.Controllers
         {
             if (!_orchardServices.Authorizer.Authorize(Permissions.ManageCachedKeys, T("You are not authorized to manage cached content part keys")))
                 return new HttpUnauthorizedResult();
-
+            
             var model = new AdminIndexVM
             {
-                CompositeProviders = _cacheKeyCompositeProviders.Select(p => new CacheKeyCompositeProviderSummary { CurrentValue = p.GetCompositeValue(), Description = p.Description, Name = p.GetType().Name }),
-                OutputCachedPartSummaries = _cacheKeyRecordRepository.Table.Select(r => new OutputCachedPartSummary { Id = r.Id, CacheKey = r.CacheKey, /*Content = _contentManager.Get(r.ContentId),*/ CachedValue = _cacheService.Get<OutputCachedPartsModel>(r.CacheKey) })
+                CompositeProviders = _cacheKeyCompositeProviders.Select(p => new CacheKeyCompositeProviderSummary { CurrentValue = p.GetCompositeValue(), Description = p.Description, Name = p.GetType().Name }).ToList(),
+                OutputCachedPartSummaries = _cacheKeyRecordRepository.Table.Select(r => new OutputCachedPartSummary { Id = r.Id, CacheKey = r.CacheKey, ContentId = r.ContentId, PartName = r.PartName, CachedValue = _cacheService.Get<OutputCachedPartsModel>(r.CacheKey) }).ToList()
             };
+
+            for (var i = 0; i < model.OutputCachedPartSummaries.Count(); i++)
+            {
+                var content = _contentManager.Get(model.OutputCachedPartSummaries[i].ContentId);
+
+                if (content != null)
+                {
+                    model.OutputCachedPartSummaries[i].ContentType = content.ContentType;
+                }
+            }
 
             return View(model);
         }
@@ -97,14 +114,18 @@ namespace CJP.OutputCachedParts.Controllers
 
     public class AdminIndexVM
     {
-        public IEnumerable<OutputCachedPartSummary> OutputCachedPartSummaries { get; set; }
-        public IEnumerable<CacheKeyCompositeProviderSummary> CompositeProviders { get; set; }
+        public IList<OutputCachedPartSummary> OutputCachedPartSummaries { get; set; }
+        public IList<CacheKeyCompositeProviderSummary> CompositeProviders { get; set; }
     }
 
     public class OutputCachedPartSummary
     {
         public int Id { get; set; }
         public string CacheKey { get; set; }
+        public string PartName { get; set; }
+        public string ContentType { get; set; }
+        public string ContentName { get; set; }
+        public int ContentId { get; set; }
         public ContentItem Content { get; set; }
         public OutputCachedPartsModel CachedValue { get; set; }
     }

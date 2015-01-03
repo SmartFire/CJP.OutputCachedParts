@@ -15,5 +15,11 @@ namespace CJP.OutputCachedParts
             return 1;
         }
 
+        public int UpdateFrom1() {
+            SchemaBuilder.AlterTable("CacheKeyRecord",
+                table => table.AddColumn<string>("PartName"));
+
+            return 2;
+        }
     }
 }

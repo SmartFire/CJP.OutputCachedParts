@@ -12,10 +12,10 @@
     <table class="items">
         <thead>
             <tr>
-                <th scope="col">@T("Cache Key")</th>
                 <th scope="col">@T("Content Type")</th>
                 <th scope="col">@T("Content Part")</th>
                 <th scope="col">@T("Cached At (UTC)")</th>
+                <th scope="col">@T("Cache Key")</th>
                 <th scope="col">@T("Actions")</th>
             </tr>
         </thead>
@@ -23,13 +23,18 @@
         {
             <tr>
                 <td>
-                    @summary.CacheKey
+                    @if (string.IsNullOrEmpty(summary.ContentType))
+                    {
+                        <span class="hint">@T("The content item has been removed")</span>
+                    }
+                    else
+                    {
+                        @summary.ContentType.CamelFriendly();
+                    }
+                    
                 </td>
                 <td>
-                    @*summary.Content.ContentType.CamelFriendly()*@
-                </td>
-                <td>
-                    @*summary.Content.ContentType.CamelFriendly()*@
+                    @summary.PartName.CamelFriendly()
                 </td>
                 <td>
                     @if (summary.CachedValue != null) {//todo: display this culture and time zone sensitive
@@ -37,7 +42,11 @@
                     }
                 </td>
                 <td>
-                    @if (summary.CachedValue == null) {
+                    @summary.CacheKey
+                </td>
+                <td>
+                    @if (summary.CachedValue == null) 
+                    {
                         <span class="hint">@T("None available (Cache expired)")</span>
                     }
                     else
@@ -49,7 +58,7 @@
                             @Html.Hidden("Id", summary.Id)
                             <button type="submit" class="link">@T("Remove From Cache")</button>
                         }
-                    }
+                    } 
                 </td>
             </tr>
         }

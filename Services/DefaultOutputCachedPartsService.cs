@@ -66,7 +66,8 @@ namespace CJP.OutputCachedParts.Services
 
             _cacheKeyRepository.Create(new CacheKeyRecord {
                 CacheKey = cachedPartMetadata.CacheKey,
-                ContentId = part.Id
+                ContentId = part.Id,
+                PartName = part.PartDefinition.Name
             });
 
             return new HtmlString(cachedModel.Html);
