@@ -11,8 +11,13 @@ Features:
         Name: Output Cached Parts
         Category: Output Cached Drivers
 		Dependencies: Orchard.Caching
+    CJP.OutputCachedParts.CachedWidgetFilter:
+        Description: Adds a layer of caching on top of the default Orchard widget filter in order to reduce the amount of calls to ContentManager.Get.
+        Name: Cached Widget Filter
+        Category: Output Cached Drivers
+		Dependencies: CJP.OutputCachedParts
     CJP.OutputCachedParts.MenuWidgetPart:
         Description: Provides an output cached driver for the HTML widget part.
         Name: Output Cached Menu Widget
         Category: Output Cached Drivers
-		Dependencies: CJP.OutputCachedParts
+		Dependencies: CJP.OutputCachedParts, Orchard.Widgets
