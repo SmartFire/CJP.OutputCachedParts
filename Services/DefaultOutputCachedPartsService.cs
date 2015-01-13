@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using CJP.OutputCachedParts.Models;
@@ -14,32 +15,56 @@ namespace CJP.OutputCachedParts.Services
         private readonly IRepository<CacheKeyRecord> _cacheKeyRepository;
         private readonly ICacheService _cacheService;
         private readonly IOutputCachedPartsContext _outputCachedPartsContext;
+        private readonly IContentManager _contentManager;
 
-        public DefaultOutputCachedPartsService(IRepository<CacheKeyRecord> cacheKeyRepository, ICacheService cacheService, IOutputCachedPartsContext outputCachedPartsContext) {
+        public DefaultOutputCachedPartsService(IRepository<CacheKeyRecord> cacheKeyRepository, ICacheService cacheService, IOutputCachedPartsContext outputCachedPartsContext, IContentManager contentManager) 
+        {
             _cacheKeyRepository = cacheKeyRepository;
             _cacheService = cacheService;
             _outputCachedPartsContext = outputCachedPartsContext;
+            _contentManager = contentManager;
         }
 
-        public void InvalidateCachedOutput(string cacheKey)
+        public void InvalidateCachedOutputKey(string cacheKey)
         {
             _cacheService.Remove(cacheKey);
         }
 
-        public void InvalidateCachedOutput(params string[] contentTypes) {
-            throw new NotImplementedException();
+        public void InvalidateCachedOutput(string contentType)
+        {
+            InvalidateCachedOutput(new[] { contentType });
         }
 
-        public void InvalidateCachedOutput(params int[] contentIds) {
-            var cackeKeys = _cacheKeyRepository.Fetch(r => contentIds.Contains(r.ContentId)).Select(r=>r.CacheKey);
+        public void InvalidateCachedOutput(int contentId)
+        {
+            InvalidateCachedOutput(new[] { contentId });
+        }
 
-            foreach (var cackeKey in cackeKeys) {
-                InvalidateCachedOutput(cackeKey);
+        public void InvalidateCachedOutput(ContentPart part)
+        {
+            InvalidateCachedOutput(new[] { part });
+        }
+
+        public void InvalidateCachedOutput(IEnumerable<string> contentTypes) 
+        {
+            var contentIds = _contentManager.Query(contentTypes.ToArray()).List().Select(c => c.Id);
+
+            InvalidateCachedOutput(contentIds);
+        }
+
+        public void InvalidateCachedOutput(IEnumerable<int> contentIds)
+        {
+            var cackeKeys = _cacheKeyRepository.Fetch(r => contentIds.ToList().Contains(r.ContentId)).Select(r => r.CacheKey);
+
+            foreach (var cackeKey in cackeKeys)
+            {
+                InvalidateCachedOutputKey(cackeKey);
             }
         }
 
-        public void InvalidateCachedOutput(ContentPart contentPart) {
-            InvalidateCachedOutput(contentPart.Id);
+        public void InvalidateCachedOutput(IEnumerable<ContentPart> parts)
+        {
+            InvalidateCachedOutput(parts.Select(p=>p.ContentItem.Id));
         }
 
         public IHtmlString BuildAndCacheOutput(Func<IHtmlString> htmlStringFactory, ContentPart part)

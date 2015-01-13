@@ -99,7 +99,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\ContentExtensions.cs" />
     <Compile Include="Handlers\LayerPartCacheInvalidationHandler.cs" />
+    <Compile Include="Handlers\MenuPartInvalidationHandler.cs" />
     <Compile Include="Models\CachedLayerModel.cs" />
     <Compile Include="Filters\CachedWidgetFilter.cs" />
     <Compile Include="Models\AdminIndexVM.cs" />

@@ -103,7 +103,7 @@ namespace CJP.OutputCachedParts.Controllers
 
             if (record != null)
             {
-                _outputCachedPartsService.InvalidateCachedOutput(record.CacheKey);
+                _outputCachedPartsService.InvalidateCachedOutputKey(record.CacheKey);
             }
 
             _orchardServices.Notifier.Information(T("The cached item has been removed from the cache and will be regenerated the next time it is required."));
