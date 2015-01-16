@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web;
-using CJP.OutputCachedParts.OutputCachedParts.Services;
 using CJP.OutputCachedParts.Services;
+using Glimpse.Orchard.AlternateImplementations;
+using Glimpse.Orchard.PerfMon.Services;
 using Orchard;
-using Orchard.Caching.Services;
 using Orchard.ContentManagement;
 using Orchard.DisplayManagement.Descriptors;
 using Orchard.DisplayManagement.Implementation;
@@ -13,12 +13,19 @@ using Orchard.Environment.Extensions;
 namespace CJP.OutputCachedParts.OutputCachedParts.AlternateImplementations
 {
     [OrchardSuppressDependency("Orchard.DisplayManagement.Implementation.DefaultDisplayManager")]
-    public class OutputCachedPartsDisplayManager : DefaultDisplayManager, IDisplayManager
+    [OrchardSuppressDependency("Glimpse.Orchard.AlternateImplementations.GlimpseDisplayManager")]
+    public class OutputCachedPartsDisplayManager : GlimpseDisplayManager, IDisplayManager
     {
         private readonly IOutputCachedPartsService _outputCachedPartsService;
 
-        public OutputCachedPartsDisplayManager(IWorkContextAccessor workContextAccessor, IEnumerable<IShapeDisplayEvents> shapeDisplayEvents, Lazy<IShapeTableLocator> shapeTableLocator, IOutputCachedPartsService outputCachedPartsService) 
-            : base(workContextAccessor, shapeDisplayEvents, shapeTableLocator) {
+
+        public OutputCachedPartsDisplayManager(IWorkContextAccessor workContextAccessor, 
+                    IEnumerable<IShapeDisplayEvents> shapeDisplayEvents, 
+                    Lazy<IShapeTableLocator> shapeTableLocator, 
+                    IPerformanceMonitor performanceMonitor, 
+                    IOutputCachedPartsService outputCachedPartsService) 
+            : base(workContextAccessor, shapeDisplayEvents, shapeTableLocator, performanceMonitor) 
+        {
             _outputCachedPartsService = outputCachedPartsService;
         }
 

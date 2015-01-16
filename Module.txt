@@ -10,7 +10,7 @@ Features:
         Description: Provides the ability to allow you to output cache individual content parts.
         Name: Output Cached Parts
         Category: Output Cached Drivers
-		Dependencies: Orchard.Caching
+		Dependencies: Orchard.Caching, Glimpse.Orchard
     CJP.OutputCachedParts.CachedWidgetFilter:
         Description: Adds a layer of caching on top of the default Orchard widget filter in order to reduce the amount of calls to ContentManager.Get.
         Name: Cached Widget Filter

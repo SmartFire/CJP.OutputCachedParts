@@ -92,6 +92,7 @@ namespace CJP.OutputCachedParts.OutputCachedParts.DriverResults
                 return;
             }
 
+            //if we have got this far, then the output does not exist in the cache
             _outputCachedPartsContext.PutCachedPartMetadata(ContentPart, _cachedPartMetadata);
             _driverResultFactory().Apply(context);
         }

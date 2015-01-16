@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using CJP.OutputCachedParts.Models;
+using Glimpse.Orchard.Models;
+using Glimpse.Orchard.PerfMon.Services;
+using Glimpse.Orchard.Tabs.Layers;
+using Glimpse.Orchard.Tabs.Widgets;
 using Orchard;
 using Orchard.Caching.Services;
 using Orchard.ContentManagement;
@@ -20,6 +24,7 @@ using Orchard.Widgets.Services;
 namespace CJP.OutputCachedParts.Filters
 {
     [OrchardSuppressDependency("Orchard.Widgets.Filters.WidgetFilter")]
+    [OrchardSuppressDependency("Glimpse.Orchard.AlternateImplementations.GlimpseWidgetFilter")]
     [OrchardFeature("CJP.OutputCachedParts.CachedWidgetFilter")]
     public class CachedWidgetFilter : FilterProvider, IResultFilter
     {
@@ -28,13 +33,21 @@ namespace CJP.OutputCachedParts.Filters
         private readonly IWidgetsService _widgetsService;
         private readonly IOrchardServices _orchardServices;
         private readonly ICacheService _cacheService;
+        private readonly IPerformanceMonitor _performanceMonitor;
 
-        public CachedWidgetFilter(IWorkContextAccessor workContextAccessor, IRuleManager ruleManager, IWidgetsService widgetsService, IOrchardServices orchardServices, ICacheService cacheService) {
+        public CachedWidgetFilter(IWorkContextAccessor workContextAccessor, 
+            IRuleManager ruleManager, 
+            IWidgetsService widgetsService, 
+            IOrchardServices orchardServices,
+            ICacheService cacheService,
+            IPerformanceMonitor performanceMonitor) 
+        {
             _workContextAccessor = workContextAccessor;
             _ruleManager = ruleManager;
             _widgetsService = widgetsService;
             _orchardServices = orchardServices;
             _cacheService = cacheService;
+            _performanceMonitor = performanceMonitor;
             Logger = NullLogger.Instance;
             T = NullLocalizer.Instance;
         }
@@ -60,7 +73,6 @@ namespace CJP.OutputCachedParts.Filters
                 return;
             }
 
-            //_orchardServices.ContentManager.Query<WidgetPart, WidgetPartRecord>().List().Select(wp=>wp.LayerPart)
             var layers = _cacheService.Get(AllLayersCacheKey, () => 
                 _orchardServices.ContentManager.Query<LayerPart, LayerPartRecord>().List().Select(p => new CachedLayerModel {
                     Id = p.Id,
@@ -73,11 +85,20 @@ namespace CJP.OutputCachedParts.Filters
             foreach (var layer in layers)
             {
                 // ignore the rule if it fails to execute
-                try
+                try 
                 {
-                    if (_ruleManager.Matches(layer.Rule))
+                    var currentLayer = layer;
+                    var layerRuleMatches = _performanceMonitor.PublishTimedAction(() => _ruleManager.Matches(currentLayer.Rule), (r, t) => new LayerMessage
                     {
-                        activeLayerIds.Add(layer.Id);
+                        Active = r,
+                        Name = currentLayer.Name,
+                        Rule = currentLayer.Rule,
+                        Duration = t.Duration
+                    }, TimelineCategories.Layers, "Layer Evaluation", currentLayer.Name).ActionResult;
+
+                    if (layerRuleMatches)
+                    {
+                        activeLayerIds.Add(currentLayer.Id);
                     }
                 }
                 catch (Exception e)
@@ -126,7 +147,21 @@ namespace CJP.OutputCachedParts.Filters
                     continue;
                 }
 
-                var widgetShape = _orchardServices.ContentManager.BuildDisplay(widgetPart);
+                var scopedWidgetPart = widgetPart;
+                var widgetBuildDisplayTime = _performanceMonitor.Time(() => _orchardServices.ContentManager.BuildDisplay(scopedWidgetPart));
+                var widgetShape = widgetBuildDisplayTime.ActionResult;
+
+                _performanceMonitor.PublishMessage(new WidgetMessage
+                {
+                    Title = widgetPart.Title,
+                    Type = widgetPart.ContentItem.ContentType,
+                    Zone = widgetPart.Zone,
+                    Layer = widgetPart.LayerPart,
+                    Position = widgetPart.Position,
+                    TechnicalName = widgetPart.Name,
+                    Duration = widgetBuildDisplayTime.TimerResult.Duration
+                });
+
                 zones[widgetPart.Record.Zone].Add(widgetShape, widgetPart.Record.Position);
             }
         }
