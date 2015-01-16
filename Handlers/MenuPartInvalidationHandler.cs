@@ -23,21 +23,42 @@ namespace CJP.OutputCachedParts.Handlers
             _outputCachedPartsService = outputCachedPartsService;
             _contentManager = contentManager;
             _menuService = menuService;
-
-            OnUpdated<MenuPart>((ctx, part) => 
-            {
-                var menuWidgetParts = _contentManager.Query<MenuWidgetPart, MenuWidgetPartRecord>().Where(r => r.Menu.Id == part.Id).List();
-                
-                _outputCachedPartsService.InvalidateCachedOutput(menuWidgetParts);
-            });
         }
 
-        protected override void Updated(UpdateContentContext context) {
+        protected override void Created(CreateContentContext context)
+        {
+            base.Created(context);
+
+            InvalidateCachesAfteMenuItemChanges(context);
+        }
+
+        protected override void Published(PublishContentContext context)
+        {
+            base.Published(context);
+
+            InvalidateCachesAfteMenuItemChanges(context);
+        }
+
+        protected override void Updated(UpdateContentContext context)
+        {
             base.Updated(context);
 
+            InvalidateCachesAfteMenuItemChanges(context);
+        }
+
+        protected override void Removing(RemoveContentContext context)
+        {
+            base.Removing(context);
+
+            InvalidateCachesAfteMenuItemChanges(context);
+        }
+
+        private void InvalidateCachesAfteMenuItemChanges(ContentContextBase context)
+        {
             var stereotype = context.ContentItem.GetStereotype();
 
-            if (string.Equals(stereotype, "MenuItem", StringComparison.InvariantCultureIgnoreCase)) {
+            if (string.Equals(stereotype, "MenuItem", StringComparison.InvariantCultureIgnoreCase))
+            {
                 var menuItemId = context.ContentItem.Id;
 
                 //get all menu ids
@@ -45,21 +66,23 @@ namespace CJP.OutputCachedParts.Handlers
                 var relevantMenuIds = new List<int>();
 
                 //foreach menu id, check to see if the menu contains this menu part
-                foreach (var menuId in allMenuIds) {
-                    if (_menuService.GetMenuParts(menuId).Select(p => p.Id).Contains(menuItemId)) {
+                foreach (var menuId in allMenuIds)
+                {
+                    if (_menuService.GetMenuParts(menuId).Select(p => p.Id).Contains(menuItemId))
+                    {
                         relevantMenuIds.Add(menuId);
                     }
                 }
 
                 //if so, get all menu widgets that use this menu and invalidate cache
-                foreach (var menuId in relevantMenuIds) {
+                foreach (var menuId in relevantMenuIds)
+                {
                     var scopedMenuId = menuId;
                     var menuWidgets = _contentManager.Query<MenuWidgetPart, MenuWidgetPartRecord>().Where(r => r.Menu.Id == scopedMenuId).List();
 
                     _outputCachedPartsService.InvalidateCachedOutput(menuWidgets);
                 }
             }
-
         }
     }
 }
