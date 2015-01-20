@@ -87,15 +87,24 @@ namespace CJP.OutputCachedParts.Filters
                         })
                     );
 
+
                 //get a collection of widget containers
                 var widgetContainers = _cacheService.Get(WidgetContainersCacheKey, () => 
-                        _orchardServices.ContentManager
-                            .Query<CommonPart, CommonPartRecord>()
-                            .Where(cp=>cp.Container!=null)
-                            .List()
-                            .Select(cp => cp.Container.Id)
-                            .Distinct()
-                    );
+                {
+                    var allWidgets = _widgetsService.GetWidgets(layers.Select(l => l.Id).ToArray());
+                    var containerIds = new List<int>();
+
+                    foreach (var widgetPart in allWidgets) 
+                    {
+                        var commonPart = widgetPart.As<ICommonPart>();
+                        if (commonPart != null && commonPart.Container != null)
+                        {
+                            containerIds.Add(commonPart.Container.Id);
+                        }
+                    }
+
+                    return containerIds;
+                });
 
                 //return the layers that are also in the collection of widget containers
                 return layers.Where(l => widgetContainers.Contains(l.Id));
