@@ -11,6 +11,8 @@ using Orchard;
 using Orchard.Caching.Services;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.Aspects;
+using Orchard.Core.Common.Models;
+using Orchard.Core.Containers.Models;
 using Orchard.Core.Settings.Models;
 using Orchard.Environment.Extensions;
 using Orchard.Localization;
@@ -73,16 +75,34 @@ namespace CJP.OutputCachedParts.Filters
                 return;
             }
 
-            var layers = _cacheService.Get(AllLayersCacheKey, () => 
-                _orchardServices.ContentManager.Query<LayerPart, LayerPartRecord>().List().Select(p => new CachedLayerModel {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Rule = p.LayerRule
-                })
-            );
+            var populatedLayers = _cacheService.Get(PopulatedLayersCacheKey, () =>
+            {
+                //get all the layers (all layers and widget containers are individually cached because they can be invalidated independently of each other)
+                var layers = _cacheService.Get(AllLayersCacheKey, () =>
+                        _orchardServices.ContentManager.Query<LayerPart, LayerPartRecord>().List().Select(p => new CachedLayerModel
+                        {
+                            Id = p.Id,
+                            Name = p.Name,
+                            Rule = p.LayerRule
+                        })
+                    );
 
+                //get a collection of widget containers
+                var widgetContainers = _cacheService.Get(WidgetContainersCacheKey, () => 
+                        _orchardServices.ContentManager
+                            .Query<CommonPart, CommonPartRecord>()
+                            .Where(cp=>cp.Container!=null)
+                            .List()
+                            .Select(cp => cp.Container.Id)
+                            .Distinct()
+                    );
+
+                //return the layers that are also in the collection of widget containers
+                return layers.Where(l => widgetContainers.Contains(l.Id));
+            });
+            
             var activeLayerIds = new List<int>();
-            foreach (var layer in layers)
+            foreach (var layer in populatedLayers)
             {
                 // ignore the rule if it fails to execute
                 try 
@@ -169,6 +189,7 @@ namespace CJP.OutputCachedParts.Filters
         public void OnResultExecuted(ResultExecutedContext filterContext) {}
 
         public static string AllLayersCacheKey { get { return "CJP.OutputCachedParts.AllLayers"; } }
+        public static string WidgetContainersCacheKey { get { return "CJP.OutputCachedParts.WidgetContainers"; } }
         public static string PopulatedLayersCacheKey { get { return "CJP.OutputCachedParts.PopulatedLayers"; } }
     }
 }
