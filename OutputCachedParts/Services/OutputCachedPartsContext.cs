@@ -22,6 +22,11 @@ namespace CJP.OutputCachedParts.OutputCachedParts.Services
 
         private string BuildCachedPartMetadataKey(ContentPart part) 
         {
+            if (part == null || part.TypePartDefinition == null || part.TypePartDefinition.PartDefinition == null) 
+            {
+                return null;
+            }
+
             return string.Format("{0}-{1}", part.TypePartDefinition.PartDefinition.Name, part.Id);
         }
 
@@ -33,6 +38,11 @@ namespace CJP.OutputCachedParts.OutputCachedParts.Services
         public CachedPartMetadata GetCachedPartMetadata(ContentPart part) 
         {
             var dictionaryKey = BuildCachedPartMetadataKey(part);
+
+            if (dictionaryKey == null) 
+            {
+                return null;
+            }
 
             if (CachedPartMetadata.ContainsKey(dictionaryKey)) 
             {
