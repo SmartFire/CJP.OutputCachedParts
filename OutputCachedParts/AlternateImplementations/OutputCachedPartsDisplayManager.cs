@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Web;
 using CJP.OutputCachedParts.Services;
 using Glimpse.Orchard.AlternateImplementations;
-using Glimpse.Orchard.PerfMon.Services;
+using Glimpse.Orchard.PerformanceMonitors;
 using Orchard;
 using Orchard.ContentManagement;
 using Orchard.DisplayManagement.Descriptors;
