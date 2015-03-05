@@ -1,9 +1,12 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Web;
 using CJP.OutputCachedParts.OutputCachedParts.Models;
 using Orchard;
 using Orchard.DisplayManagement;
 using Orchard.Environment;
+using Orchard.Logging;
 using Orchard.UI.Resources;
 
 namespace CJP.OutputCachedParts.OutputCachedParts.Shapes 
@@ -12,32 +15,72 @@ namespace CJP.OutputCachedParts.OutputCachedParts.Shapes
     {
         private readonly Work<IResourceManager> _resourceManager;
 
+        public ILogger Logger { get; set; }
+
         public CachedShapes(Work<IResourceManager> resourceManager) 
         {
             _resourceManager = resourceManager;
+
+            Logger = NullLogger.Instance;
         }
 
         [Shape]
-        public IHtmlString CachedHtml(OutputCachedPartsModel cachedModel, string cacheKey)
+        public IHtmlString CachedHtml(OutputCachedPartsModel cachedModel, string cacheKey) 
         {
-            foreach (var resource in cachedModel.IncludedResources)
+            if (cachedModel == null)
             {
-                _resourceManager.Value.Include(resource.ResourceType, resource.ResourcePath, resource.ResourceDebugPath, resource.RelativeFromPath);
+                Logger.Error("Could not render Cached Html Shape for cache key {0} because the OutputCachedPartsModel was null.", cacheKey);
+
+                return new HtmlString(string.Empty);
             }
 
-            foreach (var resource in cachedModel.RequiredResources)
+            var resourceManager = _resourceManager.Value;
+
+            if (resourceManager == null &&
+                    (
+                        (IsNotNullOrEmpty(cachedModel.IncludedResources)) ||
+                        (IsNotNullOrEmpty(cachedModel.RequiredResources)) ||
+                        (IsNotNullOrEmpty(cachedModel.HeadScripts)) ||
+                        (IsNotNullOrEmpty(cachedModel.FootScripts))
+                    )
+               ) 
             {
-                _resourceManager.Value.Require(resource.ResourceType, resource.ResourceName);
+                Logger.Error("Could not render Cached Html Shape for cache key {0} because the IResourceManager was required and it was null.", cacheKey);
+
+                return new HtmlString(string.Empty);
             }
 
-            foreach (var script in cachedModel.HeadScripts)
+
+            if (IsNotNullOrEmpty(cachedModel.IncludedResources))
             {
-                _resourceManager.Value.RegisterHeadScript(script);
+                foreach (var resource in cachedModel.IncludedResources)
+                {
+                    resourceManager.Include(resource.ResourceType, resource.ResourcePath, resource.ResourceDebugPath, resource.RelativeFromPath);
+                }
             }
 
-            foreach (var script in cachedModel.FootScripts)
+            if (IsNotNullOrEmpty(cachedModel.RequiredResources))
             {
-                _resourceManager.Value.RegisterFootScript(script);
+                foreach (var resource in cachedModel.RequiredResources)
+                {
+                    resourceManager.Require(resource.ResourceType, resource.ResourceName);
+                }
+            }
+
+            if (IsNotNullOrEmpty(cachedModel.HeadScripts))
+            {
+                foreach (var script in cachedModel.HeadScripts)
+                {
+                    resourceManager.RegisterHeadScript(script);
+                }
+            }
+
+            if (IsNotNullOrEmpty(cachedModel.FootScripts))
+            {
+                foreach (var script in cachedModel.FootScripts)
+                {
+                    resourceManager.RegisterFootScript(script);
+                }
             }
 
             var sb = new StringBuilder();
@@ -49,6 +92,11 @@ namespace CJP.OutputCachedParts.OutputCachedParts.Shapes
             sb.AppendLine(string.Format(@"<!--    END OUTPUT CACHED PART: {0} -->", cacheKey));
 
             return new HtmlString(sb.ToString());
+        }
+
+        private bool IsNotNullOrEmpty<T>(IEnumerable<T> target) 
+        {
+            return target != null && target.Any();
         }
     }
 }
