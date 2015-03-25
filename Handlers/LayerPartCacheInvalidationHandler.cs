@@ -1,6 +1,6 @@
 ﻿using System;
 using CJP.OutputCachedParts.Extensions;
-using CJP.OutputCachedParts.Filters;
+using CJP.OutputCachedParts.Services;
 using Orchard.Caching.Services;
 using Orchard.ContentManagement.Handlers;
 using Orchard.Core.Common.Models;
@@ -9,7 +9,7 @@ using Orchard.Widgets.Models;
 
 namespace CJP.OutputCachedParts.Handlers
 {
-    [OrchardFeature("CJP.OutputCachedParts.CachedWidgetFilter")]
+    [OrchardFeature("CJP.OutputCachedParts.CachedLayers")]
     public class LayerPartCacheInvalidationHandler : ContentHandler
     {
         private readonly ICacheService _cacheService;
@@ -18,9 +18,9 @@ namespace CJP.OutputCachedParts.Handlers
         {
             _cacheService = cacheService;
 
-            OnCreated<LayerPart>((ctx, part) => InvalidateLayerCaches(CachedWidgetFilter.AllLayersCacheKey));
-            OnUpdated<LayerPart>((ctx, part) => InvalidateLayerCaches(CachedWidgetFilter.AllLayersCacheKey));
-            OnRemoved<LayerPart>((ctx, part) => InvalidateLayerCaches(CachedWidgetFilter.AllLayersCacheKey));
+            OnCreated<LayerPart>((ctx, part) => InvalidateLayerCaches(CachedLayerEvaluationService.AllLayersCacheKey));
+            OnUpdated<LayerPart>((ctx, part) => InvalidateLayerCaches(CachedLayerEvaluationService.AllLayersCacheKey));
+            OnRemoved<LayerPart>((ctx, part) => InvalidateLayerCaches(CachedLayerEvaluationService.AllLayersCacheKey));
 
             OnCreated<CommonPart>((ctx, part) => InvalidateContainerCaches(ctx));
             OnUpdated<CommonPart>((ctx, part) => InvalidateContainerCaches(ctx));
@@ -32,13 +32,13 @@ namespace CJP.OutputCachedParts.Handlers
             var stereotype = context.ContentItem.GetStereotype();
             if (string.Equals(stereotype, "Widget", StringComparison.InvariantCultureIgnoreCase)) 
             {
-                InvalidateLayerCaches(CachedWidgetFilter.WidgetContainersCacheKey);
+                InvalidateLayerCaches(CachedLayerEvaluationService.WidgetContainersCacheKey);
             }
         }
 
         private void InvalidateLayerCaches(string cacheKey)
         {
-            _cacheService.Remove(CachedWidgetFilter.PopulatedLayersCacheKey);
+            _cacheService.Remove(CachedLayerEvaluationService.PopulatedLayersCacheKey);
             _cacheService.Remove(cacheKey);
         }
     }

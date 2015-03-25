@@ -16,6 +16,11 @@ Features:
         Name: Cached Widget Filter
         Category: Output Cached Drivers
 		Dependencies: CJP.OutputCachedParts
+    CJP.OutputCachedParts.CachedLayers:
+        Description: Caches Layers to remove calls to the Content Manager previously required to get Layers and also ensures that Layers that do not contain any widgets are not evaluated.
+        Name: Cached Layers
+        Category: Output Cached Drivers
+		Dependencies: CJP.OutputCachedParts, CJP.OutputCachedParts.CachedWidgetFilter
     CJP.OutputCachedParts.MenuWidgetPart:
         Description: Provides an output cached driver for the HTML widget part.
         Name: Output Cached Menu Widget
