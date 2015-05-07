@@ -78,7 +78,7 @@ namespace CJP.OutputCachedParts.Handlers
                 foreach (var menuId in relevantMenuIds)
                 {
                     var scopedMenuId = menuId;
-                    var menuWidgets = _contentManager.Query<MenuWidgetPart, MenuWidgetPartRecord>().Where(r => r.Menu.Id == scopedMenuId).List();
+                    var menuWidgets = _contentManager.Query<MenuWidgetPart>().List().Where(p => p.MenuContentItemId == scopedMenuId); //todo: can this be made more efficient?
 
                     _outputCachedPartsService.InvalidateCachedOutput(menuWidgets);
                 }
