@@ -78,6 +78,15 @@ namespace CJP.OutputCachedParts.Services
 
             var cachedModel = _outputCachedPartsContext.GetCacheModel(() => htmlStringFactory().ToHtmlString());
 
+            if (string.IsNullOrEmpty(cachedModel.Html)
+                && !cachedModel.FootScripts.Any()
+                && !cachedModel.HeadScripts.Any()
+                && !cachedModel.IncludedResources.Any()
+                && !cachedModel.RequiredResources.Any())
+            {
+                return new HtmlString(string.Empty);
+            }
+
             if (cachedPartMetadata.Timespan.HasValue)
             {
                 _cacheService.Put(cachedPartMetadata.CacheKey, cachedModel, cachedPartMetadata.Timespan.Value);
