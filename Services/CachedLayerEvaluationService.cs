@@ -9,6 +9,7 @@ using Orchard;
 using Orchard.Caching.Services;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.Aspects;
+using Orchard.ContentManagement.Utilities;
 using Orchard.Environment.Extensions;
 using Orchard.Localization;
 using Orchard.Logging;
@@ -18,7 +19,8 @@ using Orchard.Widgets.Services;
 namespace CJP.OutputCachedParts.Services
 {
     [OrchardFeature("CJP.OutputCachedParts.CachedLayers")]
-    [OrchardSuppressDependency("CJP.OutputCachedParts.Services.DefaultLayerEvaluationService")]
+    [OrchardSuppressDependency("Orchard.Widgets.Services.DefaultLayerEvaluationService")]
+    [OrchardSuppressDependency("Glimpse.Orchard.AlternateImplementations.GlimpseLayerEvaluationService")]
     public class CachedLayerEvaluationService : ILayerEvaluationService
     {
         private readonly ICacheService _cacheService;
@@ -27,6 +29,8 @@ namespace CJP.OutputCachedParts.Services
         private readonly IPerformanceMonitor _performanceMonitor;
         private readonly IRuleManager _ruleManager;
 
+        private readonly LazyField<IEnumerable<int>> _activeLayerIds; 
+
         public CachedLayerEvaluationService(ICacheService cacheService, IOrchardServices orchardServices, IWidgetsService widgetsService, IPerformanceMonitor performanceMonitor, IRuleManager ruleManager) 
         {
             _cacheService = cacheService;
@@ -34,15 +38,24 @@ namespace CJP.OutputCachedParts.Services
             _widgetsService = widgetsService;
             _performanceMonitor = performanceMonitor;
             _ruleManager = ruleManager;
+
             Logger = NullLogger.Instance;
             T = NullLocalizer.Instance;
+
+            _activeLayerIds = new LazyField<IEnumerable<int>>();
+            _activeLayerIds.Loader(PopulateActiveLayers);
         }
 
         public ILogger Logger { get; set; }
         public Localizer T { get; set; }
 
 
-        public int[] GetActiveLayerIds()
+        public IEnumerable<int> GetActiveLayerIds()
+        {
+            return _activeLayerIds.Value;
+        }
+
+        private IEnumerable<int> PopulateActiveLayers(IEnumerable<int> collection)
         {
             var populatedLayers = _cacheService.Get(PopulatedLayersCacheKey, () =>
             {

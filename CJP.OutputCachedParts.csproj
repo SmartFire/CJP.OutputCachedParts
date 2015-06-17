@@ -139,12 +139,10 @@
     <Compile Include="Providers\CurrentThemeCacheKeyCompositeProvider.cs" />
     <Compile Include="Providers\ICacheKeyCompositeProvider.cs" />
     <Compile Include="Services\CachedLayerEvaluationService.cs" />
-    <Compile Include="Services\DefaultLayerEvaluationService.cs" />
     <Compile Include="Services\DefaultOutputCachedPartsService.cs" />
     <Compile Include="Services\DefaultCacheKeyService.cs" />
     <Compile Include="Services\DefaultOutputCachedDriverResultFactory.cs" />
     <Compile Include="Services\ICacheKeyService.cs" />
-    <Compile Include="Services\ILayerEvaluationService.cs" />
     <Compile Include="Services\IOutputCachedPartsService.cs" />
     <Compile Include="Services\IOutputCachedDriverResultFactory.cs" />
   </ItemGroup>

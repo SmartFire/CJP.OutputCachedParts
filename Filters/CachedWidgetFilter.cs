@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using CJP.OutputCachedParts.Services;
 using Glimpse.Orchard.Models;
@@ -66,7 +67,7 @@ namespace CJP.OutputCachedParts.Filters
                 return;
             }
 
-            IEnumerable<WidgetPart> widgetParts = _widgetsService.GetWidgets(_layerEvaluationService.GetActiveLayerIds());
+            IEnumerable<WidgetPart> widgetParts = _widgetsService.GetWidgets(_layerEvaluationService.GetActiveLayerIds().ToArray());
 
             // Build and add shape to zone.
             var zones = workContext.Layout.Zones;
