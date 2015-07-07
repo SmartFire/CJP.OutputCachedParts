@@ -29,7 +29,7 @@ namespace CJP.OutputCachedParts.Services
         private readonly IPerformanceMonitor _performanceMonitor;
         private readonly IRuleManager _ruleManager;
 
-        private readonly LazyField<IEnumerable<int>> _activeLayerIds; 
+        private readonly LazyField<int[]> _activeLayerIds; 
 
         public CachedLayerEvaluationService(ICacheService cacheService, IOrchardServices orchardServices, IWidgetsService widgetsService, IPerformanceMonitor performanceMonitor, IRuleManager ruleManager) 
         {
@@ -42,7 +42,7 @@ namespace CJP.OutputCachedParts.Services
             Logger = NullLogger.Instance;
             T = NullLocalizer.Instance;
 
-            _activeLayerIds = new LazyField<IEnumerable<int>>();
+            _activeLayerIds = new LazyField<int[]>();
             _activeLayerIds.Loader(PopulateActiveLayers);
         }
 
@@ -50,12 +50,12 @@ namespace CJP.OutputCachedParts.Services
         public Localizer T { get; set; }
 
 
-        public IEnumerable<int> GetActiveLayerIds()
+        public int[] GetActiveLayerIds()
         {
             return _activeLayerIds.Value;
         }
 
-        private IEnumerable<int> PopulateActiveLayers(IEnumerable<int> collection)
+        private int[] PopulateActiveLayers(IEnumerable<int> collection)
         {
             var populatedLayers = _cacheService.Get(PopulatedLayersCacheKey, () =>
             {
