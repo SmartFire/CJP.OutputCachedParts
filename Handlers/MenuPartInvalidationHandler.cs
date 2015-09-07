@@ -8,15 +8,18 @@ using Orchard.ContentManagement.Handlers;
 using Orchard.Core.Navigation.Models;
 using Orchard.Core.Navigation.Services;
 using Orchard.Environment.Extensions;
+using Orchard.Recipes.Events;
+using Orchard.Recipes.Models;
 
 namespace CJP.OutputCachedParts.Handlers
 {
     [OrchardFeature("CJP.OutputCachedParts.MenuWidgetPart")]
-    public class MenuPartInvalidationHandler : ContentHandler
+    public class MenuPartInvalidationHandler : ContentHandler, IRecipeExecuteEventHandler
     {
         private readonly IOutputCachedPartsService _outputCachedPartsService;
         private readonly IContentManager _contentManager;
         private readonly IMenuService _menuService;
+        private bool _recipeIsExecuting;
 
         public MenuPartInvalidationHandler(IOutputCachedPartsService outputCachedPartsService, IContentManager contentManager, IMenuService menuService)
         {
@@ -55,6 +58,9 @@ namespace CJP.OutputCachedParts.Handlers
 
         private void InvalidateCachesAfteMenuItemChanges(ContentContextBase context)
         {
+            if (_recipeIsExecuting)
+                return;
+
             var stereotype = context.ContentItem.GetStereotype();
 
             if (string.Equals(stereotype, "MenuItem", StringComparison.InvariantCultureIgnoreCase))
@@ -84,5 +90,19 @@ namespace CJP.OutputCachedParts.Handlers
                 }
             }
         }
+
+        void IRecipeExecuteEventHandler.RecipeStepExecuting(string executionId, RecipeContext context)
+        {
+            _recipeIsExecuting = true;
+        }
+
+        void IRecipeExecuteEventHandler.RecipeStepExecuted(string executionId, RecipeContext context)
+        {
+            _recipeIsExecuting = false;
+        }
+
+        void IRecipeExecuteEventHandler.ExecutionStart(string executionId, Recipe recipe) { }
+        void IRecipeExecuteEventHandler.ExecutionComplete(string executionId) { }
+        void IRecipeExecuteEventHandler.ExecutionFailed(string executionId) { }
     }
 }
