@@ -84,7 +84,10 @@ namespace CJP.OutputCachedParts.Handlers
                 foreach (var menuId in relevantMenuIds)
                 {
                     var scopedMenuId = menuId;
-                    var menuWidgets = _contentManager.Query<MenuWidgetPart>().List().Where(p => p.MenuContentItemId == scopedMenuId); //todo: can this be made more efficient?
+                    var menuWidgets = _contentManager
+                        .Query<MenuWidgetPart>(GetMenuWidgetContentTypes())
+                        .List()
+                        .Where(p => p.MenuContentItemId == scopedMenuId);
 
                     _outputCachedPartsService.InvalidateCachedOutput(menuWidgets);
                 }
@@ -93,16 +96,41 @@ namespace CJP.OutputCachedParts.Handlers
 
         void IRecipeExecuteEventHandler.RecipeStepExecuting(string executionId, RecipeContext context)
         {
+            if (context.RecipeStep.Name != "Content")
+            {
+                return;
+            }
+
             _recipeIsExecuting = true;
         }
 
         void IRecipeExecuteEventHandler.RecipeStepExecuted(string executionId, RecipeContext context)
         {
+            if (context.RecipeStep.Name != "Content")
+            {
+                return;
+            }
+
             _recipeIsExecuting = false;
+            
+            // Invalidate all cached menu widgets.
+            var menuWidgets = _contentManager.Query<MenuWidgetPart>(GetMenuWidgetContentTypes()).List();
+            _outputCachedPartsService.InvalidateCachedOutput(menuWidgets);
         }
 
         void IRecipeExecuteEventHandler.ExecutionStart(string executionId, Recipe recipe) { }
         void IRecipeExecuteEventHandler.ExecutionComplete(string executionId) { }
         void IRecipeExecuteEventHandler.ExecutionFailed(string executionId) { }
+
+        private string[] GetMenuWidgetContentTypes()
+        {
+            var query = 
+                from typeDefinition in _contentManager.GetContentTypeDefinitions()
+                from part in typeDefinition.Parts
+                where  part.PartDefinition.Name == typeof (MenuWidgetPart).Name
+                select typeDefinition.Name;
+
+            return query.ToArray();
+        }
     }
 }
