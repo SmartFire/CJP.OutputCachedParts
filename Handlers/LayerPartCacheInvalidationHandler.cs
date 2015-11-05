@@ -18,9 +18,9 @@ namespace CJP.OutputCachedParts.Handlers
         {
             _cacheService = cacheService;
 
-            OnCreated<LayerPart>((ctx, part) => InvalidateLayerCaches(CachedLayerEvaluationService.AllLayersCacheKey));
-            OnUpdated<LayerPart>((ctx, part) => InvalidateLayerCaches(CachedLayerEvaluationService.AllLayersCacheKey));
-            OnRemoved<LayerPart>((ctx, part) => InvalidateLayerCaches(CachedLayerEvaluationService.AllLayersCacheKey));
+            OnCreated<LayerPart>((ctx, part) => InvalidateLayerCaches(CachedLayerRetrievalService.AllLayersCacheKey));
+            OnUpdated<LayerPart>((ctx, part) => InvalidateLayerCaches(CachedLayerRetrievalService.AllLayersCacheKey));
+            OnRemoved<LayerPart>((ctx, part) => InvalidateLayerCaches(CachedLayerRetrievalService.AllLayersCacheKey));
 
             OnCreated<CommonPart>((ctx, part) => InvalidateContainerCaches(ctx));
             OnUpdated<CommonPart>((ctx, part) => InvalidateContainerCaches(ctx));
@@ -32,13 +32,13 @@ namespace CJP.OutputCachedParts.Handlers
             var stereotype = context.ContentItem.GetStereotype();
             if (string.Equals(stereotype, "Widget", StringComparison.InvariantCultureIgnoreCase)) 
             {
-                InvalidateLayerCaches(CachedLayerEvaluationService.WidgetContainersCacheKey);
+                InvalidateLayerCaches(CachedLayerRetrievalService.WidgetContainersCacheKey);
             }
         }
 
         private void InvalidateLayerCaches(string cacheKey)
         {
-            _cacheService.Remove(CachedLayerEvaluationService.PopulatedLayersCacheKey);
+            _cacheService.Remove(CachedLayerRetrievalService.PopulatedLayersCacheKey);
             _cacheService.Remove(cacheKey);
         }
     }

@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using CJP.OutputCachedParts.Models;
 using Glimpse.Orchard.Models;
 using Glimpse.Orchard.Models.Messages;
 using Glimpse.Orchard.PerformanceMonitors;
-using Orchard;
-using Orchard.Caching.Services;
-using Orchard.ContentManagement;
-using Orchard.ContentManagement.Aspects;
 using Orchard.ContentManagement.Utilities;
 using Orchard.Environment.Extensions;
 using Orchard.Localization;
 using Orchard.Logging;
-using Orchard.Widgets.Models;
 using Orchard.Widgets.Services;
 
 namespace CJP.OutputCachedParts.Services
@@ -23,26 +16,22 @@ namespace CJP.OutputCachedParts.Services
     [OrchardSuppressDependency("Glimpse.Orchard.AlternateImplementations.GlimpseLayerEvaluationService")]
     public class CachedLayerEvaluationService : ILayerEvaluationService
     {
-        private readonly ICacheService _cacheService;
-        private readonly IOrchardServices _orchardServices;
-        private readonly IWidgetsService _widgetsService;
         private readonly IPerformanceMonitor _performanceMonitor;
         private readonly IRuleManager _ruleManager;
+        private readonly ILayerRetrievalService _layerRetrievalService;
 
-        private readonly LazyField<IEnumerable<int>> _activeLayerIds; 
+        private readonly LazyField<int[]> _activeLayerIds; 
 
-        public CachedLayerEvaluationService(ICacheService cacheService, IOrchardServices orchardServices, IWidgetsService widgetsService, IPerformanceMonitor performanceMonitor, IRuleManager ruleManager) 
+        public CachedLayerEvaluationService(IPerformanceMonitor performanceMonitor, IRuleManager ruleManager, ILayerRetrievalService layerRetrievalService) 
         {
-            _cacheService = cacheService;
-            _orchardServices = orchardServices;
-            _widgetsService = widgetsService;
             _performanceMonitor = performanceMonitor;
             _ruleManager = ruleManager;
+            _layerRetrievalService = layerRetrievalService;
 
             Logger = NullLogger.Instance;
             T = NullLocalizer.Instance;
 
-            _activeLayerIds = new LazyField<IEnumerable<int>>();
+            _activeLayerIds = new LazyField<int[]>();
             _activeLayerIds.Loader(PopulateActiveLayers);
         }
 
@@ -50,47 +39,14 @@ namespace CJP.OutputCachedParts.Services
         public Localizer T { get; set; }
 
 
-        public IEnumerable<int> GetActiveLayerIds()
+        public int[] GetActiveLayerIds()
         {
             return _activeLayerIds.Value;
         }
 
-        private IEnumerable<int> PopulateActiveLayers(IEnumerable<int> collection)
+        private int[] PopulateActiveLayers()
         {
-            var populatedLayers = _cacheService.Get(PopulatedLayersCacheKey, () =>
-            {
-                //get all the layers (all layers and widget containers are individually cached because they can be invalidated independently of each other)
-                var layers = _cacheService.Get(AllLayersCacheKey, () =>
-                        _orchardServices.ContentManager.Query<LayerPart, LayerPartRecord>().List().Select(p => new CachedLayerModel
-                        {
-                            Id = p.Id,
-                            Name = p.Name,
-                            Rule = p.LayerRule
-                        })
-                    );
-
-
-                //get a collection of widget containers
-                var widgetContainers = _cacheService.Get(WidgetContainersCacheKey, () =>
-                {
-                    var allWidgets = _widgetsService.GetWidgets(layers.Select(l => l.Id).ToArray());
-                    var containerIds = new List<int>();
-
-                    foreach (var widgetPart in allWidgets)
-                    {
-                        var commonPart = widgetPart.As<ICommonPart>();
-                        if (commonPart != null && commonPart.Container != null)
-                        {
-                            containerIds.Add(commonPart.Container.Id);
-                        }
-                    }
-
-                    return containerIds;
-                });
-
-                //return the layers that are also in the collection of widget containers
-                return layers.Where(l => widgetContainers.Contains(l.Id));
-            });
+            var populatedLayers = _layerRetrievalService.GetLayers();
 
             var activeLayerIds = new List<int>();
             foreach (var layer in populatedLayers)
@@ -120,9 +76,5 @@ namespace CJP.OutputCachedParts.Services
 
             return activeLayerIds.ToArray();
         }
-
-        public static string AllLayersCacheKey { get { return "CJP.OutputCachedParts.AllLayers"; } }
-        public static string WidgetContainersCacheKey { get { return "CJP.OutputCachedParts.WidgetContainers"; } }
-        public static string PopulatedLayersCacheKey { get { return "CJP.OutputCachedParts.PopulatedLayers"; } }
     }
 }
