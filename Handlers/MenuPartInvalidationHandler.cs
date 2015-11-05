@@ -8,15 +8,18 @@ using Orchard.ContentManagement.Handlers;
 using Orchard.Core.Navigation.Models;
 using Orchard.Core.Navigation.Services;
 using Orchard.Environment.Extensions;
+using Orchard.Recipes.Events;
+using Orchard.Recipes.Models;
 
 namespace CJP.OutputCachedParts.Handlers
 {
     [OrchardFeature("CJP.OutputCachedParts.MenuWidgetPart")]
-    public class MenuPartInvalidationHandler : ContentHandler
+    public class MenuPartInvalidationHandler : ContentHandler, IRecipeExecuteEventHandler
     {
         private readonly IOutputCachedPartsService _outputCachedPartsService;
         private readonly IContentManager _contentManager;
         private readonly IMenuService _menuService;
+        private bool _recipeIsExecuting;
 
         public MenuPartInvalidationHandler(IOutputCachedPartsService outputCachedPartsService, IContentManager contentManager, IMenuService menuService)
         {
@@ -55,6 +58,9 @@ namespace CJP.OutputCachedParts.Handlers
 
         private void InvalidateCachesAfteMenuItemChanges(ContentContextBase context)
         {
+            if (_recipeIsExecuting)
+                return;
+
             var stereotype = context.ContentItem.GetStereotype();
 
             if (string.Equals(stereotype, "MenuItem", StringComparison.InvariantCultureIgnoreCase))
@@ -78,11 +84,53 @@ namespace CJP.OutputCachedParts.Handlers
                 foreach (var menuId in relevantMenuIds)
                 {
                     var scopedMenuId = menuId;
-                    var menuWidgets = _contentManager.Query<MenuWidgetPart>().List().Where(p => p.MenuContentItemId == scopedMenuId); //todo: can this be made more efficient?
+                    var menuWidgets = _contentManager
+                        .Query<MenuWidgetPart>(GetMenuWidgetContentTypes())
+                        .List()
+                        .Where(p => p.MenuContentItemId == scopedMenuId);
 
                     _outputCachedPartsService.InvalidateCachedOutput(menuWidgets);
                 }
             }
+        }
+
+        void IRecipeExecuteEventHandler.RecipeStepExecuting(string executionId, RecipeContext context)
+        {
+            if (context.RecipeStep.Name != "Content")
+            {
+                return;
+            }
+
+            _recipeIsExecuting = true;
+        }
+
+        void IRecipeExecuteEventHandler.RecipeStepExecuted(string executionId, RecipeContext context)
+        {
+            if (context.RecipeStep.Name != "Content")
+            {
+                return;
+            }
+
+            _recipeIsExecuting = false;
+            
+            // Invalidate all cached menu widgets.
+            var menuWidgets = _contentManager.Query<MenuWidgetPart>(GetMenuWidgetContentTypes()).List();
+            _outputCachedPartsService.InvalidateCachedOutput(menuWidgets);
+        }
+
+        void IRecipeExecuteEventHandler.ExecutionStart(string executionId, Recipe recipe) { }
+        void IRecipeExecuteEventHandler.ExecutionComplete(string executionId) { }
+        void IRecipeExecuteEventHandler.ExecutionFailed(string executionId) { }
+
+        private string[] GetMenuWidgetContentTypes()
+        {
+            var query = 
+                from typeDefinition in _contentManager.GetContentTypeDefinitions()
+                from part in typeDefinition.Parts
+                where  part.PartDefinition.Name == typeof (MenuWidgetPart).Name
+                select typeDefinition.Name;
+
+            return query.ToArray();
         }
     }
 }
